@@ -17,17 +17,18 @@ const ChatRoomScreen = () => {
   // console.log(route.params.id);
 
   // console.log(route.params)
-  useEffect(() => {
-    const fetchMessages = async () => {
-      const messagesData = await API.graphql(
-        graphqlOperation(messagesByChatRoom, {
-          chatRoomID: route.params.id,
-          sortDirection: "DESC",
-        })
-      );
-      setMessages(messagesData.data.messagesByChatRoom.items);
-    };
 
+  const fetchMessages = async () => {
+    const messagesData = await API.graphql(
+      graphqlOperation(messagesByChatRoom, {
+        chatRoomID: route.params.id,
+        sortDirection: "DESC",
+      })
+    );
+    setMessages(messagesData.data.messagesByChatRoom.items);
+  };
+
+  useEffect(() => {
     fetchMessages();
   }, []);
 
@@ -39,22 +40,17 @@ const ChatRoomScreen = () => {
     getMyId();
   }, []);
 
-  const addMessageToState = (message) => {
-    setMessages([message, ...messages]);
-  };
   useEffect(() => {
     const subscription = API.graphql(
       graphqlOperation(onCreateMessage)
     ).subscribe({
       next: (data) => {
-        // console.log(data.value.data);
         const newMessage = data.value.data.onCreateMessage;
-        // if (newMessage.chatRoomID !== route.params.id) {
-        //   console.log("Message is in another room!");
-        //   return;
-        // }
-        // setMessages([newMessage, ...messages]);
-        addMessageToState(newMessage);
+        if (newMessage.chatRoomID !== route.params.id) {
+          console.log("Message is in another room!");
+          return;
+        }
+        fetchMessages();
       },
     });
     return () => subscription.unsubscribe();
