@@ -14,9 +14,6 @@ const ChatListItem = (props: ChatListItemProps) => {
   const { chatRoom } = props;
   const [otherUser, setOtherUser] = useState(null);
   const navigation = useNavigation();
-  console.log("rysusus");
-
-  console.log(chatRoom.chatRoomUsers);
 
   useEffect(() => {
     const getOtherUser = async () => {
@@ -49,7 +46,9 @@ const ChatListItem = (props: ChatListItemProps) => {
           <View style={styles.midContainer}>
             <Text style={styles.username}>{otherUser.name}</Text>
             <Text numberOfLines={2} style={styles.lastMessage}>
-              {chatRoom.lastMessage ? chatRoom.lastMessage.content : ""}
+              {chatRoom.lastMessage
+                ? `${chatRoom.lastMessage.user.name}: ${chatRoom.lastMessage.content}`
+                : ""}
             </Text>
           </View>
         </View>

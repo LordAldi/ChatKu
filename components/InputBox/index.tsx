@@ -9,7 +9,7 @@ import {
   Entypo,
   Fontisto,
 } from "@expo/vector-icons";
-import { createMessage } from "../../graphql/mutations";
+import { createMessage, updateChatRoom } from "../../graphql/mutations";
 const InputBox = (props) => {
   const { chatRoomID } = props;
   const [message, setMessage] = useState("");
@@ -27,9 +27,24 @@ const InputBox = (props) => {
     console.warn("Microphone");
   };
 
-  const onSendPress = async () => {
+  const updateChatRoomLastMessage = async (messageId: string) => {
     try {
       await API.graphql(
+        graphqlOperation(updateChatRoom, {
+          input: {
+            id: chatRoomID,
+            lastMessageID: messageId,
+          },
+        })
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const onSendPress = async () => {
+    try {
+      const newMessageData = await API.graphql(
         graphqlOperation(createMessage, {
           input: {
             content: message,
@@ -38,6 +53,7 @@ const InputBox = (props) => {
           },
         })
       );
+      await updateChatRoomLastMessage(newMessageData.data.createMessage.id);
     } catch (error) {
       console.log(error);
     }
